@@ -1,6 +1,8 @@
+// @dart=2.9
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:circular_countdown_timer/circular_countdown_timer.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 String _title = "Pause";
 
@@ -12,11 +14,16 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(debugShowCheckedModeBanner: false, home: HomePage());
+    return MaterialApp(
+        debugShowCheckedModeBanner: false, home: HomePage(swap: false));
   }
 }
 
 class HomePage extends StatefulWidget {
+  final bool swap;
+
+  HomePage({Key key, this.swap}) : super(key: key);
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -24,12 +31,57 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   CountDownController _controller = CountDownController();
   int _duration = 10;
+  int _break = 5;
+
+  bool swap = false;
+
+  FlutterLocalNotificationsPlugin localNotification;
+
+  @override
+  void initState() {
+    super.initState();
+    swap = widget.swap;
+    var androidInitialize = AndroidInitializationSettings('study');
+    var iOSInitialize = IOSInitializationSettings();
+    var initializationSettings =
+        InitializationSettings(android: androidInitialize, iOS: iOSInitialize);
+    localNotification = FlutterLocalNotificationsPlugin();
+    localNotification.initialize(initializationSettings);
+  }
+
+  Future _showNotificationOnStart() async {
+    var androidDetails = AndroidNotificationDetails(
+        "channelId", "Clock Notification", "Description",
+        importance: Importance.high);
+    var iOSDetails = IOSNotificationDetails();
+    var notificationDetails =
+        NotificationDetails(android: androidDetails, iOS: iOSDetails);
+    await localNotification.show(0, "The Pomodoro Timer started!",
+        "It will ring in $_duration minutes.", notificationDetails);
+  }
+
+  Future _showNotificationOnEnd() async {
+    var androidDetails = AndroidNotificationDetails(
+        "channelId", "Clock Notification", "Description",
+        importance: Importance.high);
+    var iOSDetails = IOSNotificationDetails();
+    var notificationDetails =
+        NotificationDetails(android: androidDetails, iOS: iOSDetails);
+    await localNotification.show(0, "The time is up!",
+        "Good job, now you can rest for $_break minutes.", notificationDetails);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Pomodoro Clock'), centerTitle: true),
-      body: Center(
+    Widget bodyWidget;
+    Widget actionButton;
+
+    if (swap) {
+      // this should be !swap, it's swap to test push-notifications
+      bodyWidget = Container();
+      actionButton = Container();
+    } else {
+      bodyWidget = Center(
         child: Padding(
           padding:
               EdgeInsets.only(bottom: MediaQuery.of(context).size.height / 7),
@@ -50,13 +102,13 @@ class _HomePageState extends State<HomePage> {
             height: MediaQuery.of(context).size.height / 2,
 
             // Ring Color for Countdown Widget.
-            ringColor: Colors.grey[300]!,
+            ringColor: Colors.grey[300],
 
             // Ring Gradient for Countdown Widget.
             ringGradient: null,
 
             // Filling Color for Countdown Widget.
-            fillColor: Colors.purpleAccent[100]!,
+            fillColor: Colors.purpleAccent[100],
 
             // Filling Gradient for Countdown Widget.
             fillGradient: null,
@@ -97,25 +149,33 @@ class _HomePageState extends State<HomePage> {
             // This Callback will execute when the Countdown Starts.
             onStart: () {
               setState(() {
+                _showNotificationOnStart();
                 _title = "Pause";
               });
             },
 
             // This Callback will execute when the Countdown Ends.
             onComplete: () {
-              // Here, do whatever you want
-              print('Countdown Ended');
+              // Push notification comes here
+              setState(() {
+                _showNotificationOnEnd();
+                swap = !swap;
+              });
             },
           ),
         ),
-      ),
-      floatingActionButton: Row(
+      );
+      actionButton = Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SizedBox(
             width: 30,
           ),
-          _button(title: "Start", onPressed: () => _controller.start()),
+          _button(
+              title: "Start",
+              onPressed: () {
+                _controller.start();
+              }),
           SizedBox(
             width: 10,
           ),
@@ -141,18 +201,22 @@ class _HomePageState extends State<HomePage> {
               title: "Restart",
               onPressed: () => _controller.restart(duration: _duration))
         ],
-      ),
-    );
-  }
+      );
+    }
 
-  _button({required String title, VoidCallback? onPressed}) {
-    return Expanded(
-        child: ElevatedButton(
-      child: Text(
-        title,
-        style: TextStyle(color: Colors.white),
-      ),
-      onPressed: onPressed,
-    ));
+    return Scaffold(
+        appBar: AppBar(title: Text('Pomodoro Clock'), centerTitle: true),
+        body: bodyWidget,
+        floatingActionButton: actionButton);
   }
+}
+
+_button({String title, VoidCallback onPressed}) {
+  return Expanded(
+      child: ElevatedButton(
+          child: Text(
+            title,
+            style: TextStyle(color: Colors.white),
+          ),
+          onPressed: onPressed));
 }
