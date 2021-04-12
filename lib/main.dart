@@ -41,7 +41,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   bool swap = false;
-  var _duration;
+
+  Duration _duration = Duration(hours: 0, minutes: 0);
 
   FlutterLocalNotificationsPlugin localNotification;
 
@@ -91,10 +92,20 @@ class _HomePageState extends State<HomePage> {
           duration: _duration,
           onChange: (val) {
             this.setState(() => _duration = val);
+            String temp = _duration.toString().substring(2, 4);
+            // ignore: unrelated_type_equality_checks
+            if (temp[0] == 0) {
+              duration = int.parse(temp[1]);
+            } else {
+              duration = int.parse(temp);
+            }
           },
           snapToMins: 5.0,
         ),
       ));
+      return Scaffold(
+          appBar: AppBar(title: Text('Pomodoro Clock'), centerTitle: true),
+          body: bodyWidget);
     } else {
       bodyWidget = Center(
         child: Padding(
