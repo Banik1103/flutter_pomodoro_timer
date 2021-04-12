@@ -22,7 +22,6 @@ class _ActionButton1State extends State<ActionButton1> {
           });
         },
       ),
-      SizedBox(width: 30)
     ]);
   }
 }
@@ -56,8 +55,7 @@ class _ActionButton2State extends State<ActionButton2> {
       ControlButton(
         title: 'Restart',
         buttonTapped: () => controller.restart(duration: duration),
-      ),
-      SizedBox(width: 30)
+      )
     ]);
   }
 }
