@@ -1,10 +1,20 @@
 // @dart=2.9
+import 'components/rows.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-String _title = "Pause";
+String titLe = "Pause";
+
+Widget bodyWidget;
+
+CountDownController controller = CountDownController();
+
+int duration = 10;
+int _break = 5;
+
+bool start = true;
 
 void main() {
   runApp(MyApp());
@@ -29,10 +39,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  CountDownController _controller = CountDownController();
-  int _duration = 10;
-  int _break = 5;
-
   bool swap = false;
 
   FlutterLocalNotificationsPlugin localNotification;
@@ -57,7 +63,7 @@ class _HomePageState extends State<HomePage> {
     var notificationDetails =
         NotificationDetails(android: androidDetails, iOS: iOSDetails);
     await localNotification.show(0, "The Pomodoro Timer started!",
-        "It will ring in $_duration minutes.", notificationDetails);
+        "It will ring in $duration minutes.", notificationDetails);
   }
 
   Future _showNotificationOnEnd() async {
@@ -73,150 +79,105 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    Widget bodyWidget;
-    Widget actionButton;
-
     if (swap) {
       // this should be !swap, it's swap to test push-notifications
       bodyWidget = Container();
-      actionButton = Container();
     } else {
       bodyWidget = Center(
         child: Padding(
           padding:
               EdgeInsets.only(bottom: MediaQuery.of(context).size.height / 7),
           child: CircularCountDownTimer(
-            // Countdown duration in Seconds.
-            duration: _duration,
+              // Countdown duration in Seconds.
+              duration: duration,
 
-            // Countdown initial elapsed Duration in Seconds.
-            initialDuration: 0,
+              // Countdown initial elapsed Duration in Seconds.
+              initialDuration: 0,
 
-            // Controls (i.e Start, Pause, Resume, Restart) the Countdown Timer.
-            controller: _controller,
+              // Controls (i.e Start, Pause, Resume, Restart) the Countdown Timer.
+              controller: controller,
 
-            // Width of the Countdown Widget.
-            width: MediaQuery.of(context).size.width / 2,
+              // Width of the Countdown Widget.
+              width: MediaQuery.of(context).size.width / 2,
 
-            // Height of the Countdown Widget.
-            height: MediaQuery.of(context).size.height / 2,
+              // Height of the Countdown Widget.
+              height: MediaQuery.of(context).size.height / 2,
 
-            // Ring Color for Countdown Widget.
-            ringColor: Colors.grey[300],
+              // Ring Color for Countdown Widget.
+              ringColor: Colors.grey[300],
 
-            // Ring Gradient for Countdown Widget.
-            ringGradient: null,
+              // Ring Gradient for Countdown Widget.
+              ringGradient: null,
 
-            // Filling Color for Countdown Widget.
-            fillColor: Colors.purpleAccent[100],
+              // Filling Color for Countdown Widget.
+              fillColor: Colors.purpleAccent[100],
 
-            // Filling Gradient for Countdown Widget.
-            fillGradient: null,
+              // Filling Gradient for Countdown Widget.
+              fillGradient: null,
 
-            // Background Color for Countdown Widget.
-            backgroundColor: Colors.purple[500],
+              // Background Color for Countdown Widget.
+              backgroundColor: Colors.purple[500],
 
-            // Background Gradient for Countdown Widget.
-            backgroundGradient: null,
+              // Background Gradient for Countdown Widget.
+              backgroundGradient: null,
 
-            // Border Thickness of the Countdown Ring.
-            strokeWidth: 20.0,
+              // Border Thickness of the Countdown Ring.
+              strokeWidth: 20.0,
 
-            // Begin and end contours with a flat edge and no extension.
-            strokeCap: StrokeCap.round,
+              // Begin and end contours with a flat edge and no extension.
+              strokeCap: StrokeCap.round,
 
-            // Text Style for Countdown Text.
-            textStyle: TextStyle(
-                fontSize: 33.0,
-                color: Colors.white,
-                fontWeight: FontWeight.bold),
+              // Text Style for Countdown Text.
+              textStyle: TextStyle(
+                  fontSize: 33.0,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold),
 
-            // Format for the Countdown Text.
-            textFormat: CountdownTextFormat.S,
+              // Format for the Countdown Text.
+              textFormat: CountdownTextFormat.S,
 
-            // Handles Countdown Timer (true for Reverse Countdown (max to 0), false for Forward Countdown (0 to max)).
-            isReverse: true,
+              // Handles Countdown Timer (true for Reverse Countdown (max to 0), false for Forward Countdown (0 to max)).
+              isReverse: true,
 
-            // Handles Animation Direction (true for Reverse Animation, false for Forward Animation).
-            isReverseAnimation: true,
+              // Handles Animation Direction (true for Reverse Animation, false for Forward Animation).
+              isReverseAnimation: true,
 
-            // Handles visibility of the Countdown Text.
-            isTimerTextShown: true,
+              // Handles visibility of the Countdown Text.
+              isTimerTextShown: true,
 
-            // Handles the timer start.
-            autoStart: false,
+              // Handles the timer start.
+              autoStart: false,
 
-            // This Callback will execute when the Countdown Starts.
-            onStart: () {
-              setState(() {
-                _showNotificationOnStart();
-                _title = "Pause";
-              });
-            },
+              // This Callback will execute when the Countdown Starts.
+              onStart: () {
+                setState(() {
+                  _showNotificationOnStart();
+                  titLe = "Pause";
+                });
+              },
 
-            // This Callback will execute when the Countdown Ends.
-            onComplete: () {
-              // Push notification comes here
-              setState(() {
-                _showNotificationOnEnd();
-                swap = !swap;
-              });
-            },
-          ),
+              // This Callback will execute when the Countdown Ends.
+              onComplete: () {
+                setState(() {
+                  _showNotificationOnEnd();
+                  swap = !swap;
+                });
+              }),
         ),
-      );
-      actionButton = Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: 30,
-          ),
-          _button(
-              title: "Start",
-              onPressed: () {
-                _controller.start();
-              }),
-          SizedBox(
-            width: 10,
-          ),
-          _button(
-              title: _title,
-              onPressed: () {
-                if (_title == "Pause") {
-                  _controller.pause();
-                  setState(() {
-                    _title = "Resume";
-                  });
-                } else {
-                  _controller.resume();
-                  setState(() {
-                    _title = "Pause";
-                  });
-                }
-              }),
-          SizedBox(
-            width: 10,
-          ),
-          _button(
-              title: "Restart",
-              onPressed: () => _controller.restart(duration: _duration))
-        ],
       );
     }
 
-    return Scaffold(
-        appBar: AppBar(title: Text('Pomodoro Clock'), centerTitle: true),
-        body: bodyWidget,
-        floatingActionButton: actionButton);
+    if (start) {
+      return Scaffold(
+          appBar: AppBar(title: Text('Pomodoro Clock'), centerTitle: true),
+          body: bodyWidget,
+          floatingActionButton: ActionButton1());
+    } else {
+      start = false;
+      return Scaffold(
+          appBar: AppBar(title: Text('Pomodoro Clock'), centerTitle: true),
+          body: bodyWidget,
+          floatingActionButton: ActionButton2());
+    }
   }
-}
-
-_button({String title, VoidCallback onPressed}) {
-  return Expanded(
-      child: ElevatedButton(
-          child: Text(
-            title,
-            style: TextStyle(color: Colors.white),
-          ),
-          onPressed: onPressed));
 }
