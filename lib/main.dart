@@ -2,6 +2,7 @@
 import 'components/rows.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:duration_picker/duration_picker.dart';
 import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
@@ -40,6 +41,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   bool swap = false;
+  var _duration;
 
   FlutterLocalNotificationsPlugin localNotification;
 
@@ -81,7 +83,18 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     if (swap) {
       // this should be !swap, it's swap to test push-notifications
-      bodyWidget = Container();
+      bodyWidget = Center(
+          child: Padding(
+        padding:
+            EdgeInsets.only(bottom: MediaQuery.of(context).size.height / 7),
+        child: DurationPicker(
+          duration: _duration,
+          onChange: (val) {
+            this.setState(() => _duration = val);
+          },
+          snapToMins: 5.0,
+        ),
+      ));
     } else {
       bodyWidget = Center(
         child: Padding(
