@@ -1,3 +1,3 @@
-# pomodoro_clock
+# pomodoro_timer
 
-A simple pomodoro clock app to improve your study workflow, created in Flutter.
+A simple pomodoro timer app to improve your study workflow, created in Flutter.
