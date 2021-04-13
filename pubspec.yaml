@@ -1,5 +1,5 @@
-name: pomodoro_clock
-description: A simple clock/timer to help you with your pomodoro study technique.
+name: pomodoro_timer
+description: A simple timer to help you with your pomodoro study technique.
 
 publish_to: 'none' 
 
