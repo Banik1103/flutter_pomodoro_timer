@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:duration_picker/duration_picker.dart';
 import 'package:pomodoro_timer/components/buttons.dart';
-import 'package:pomodoro_timer/components/changeText.dart';
+import 'package:pomodoro_timer/components/change.dart';
 import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
@@ -37,9 +37,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: ChangeNotifierProvider<ChangeText>(
+        home: ChangeNotifierProvider<Change>(
             create: (BuildContext context) {
-              return ChangeText();
+              return Change();
             },
             child: HomePage(swap: false)));
   }
@@ -127,7 +127,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final textAbove = Provider.of<ChangeText>(context);
+    final textAbove = Provider.of<Change>(context);
     if (!swap) {
       bodyWidget = Center(
         child: Column(

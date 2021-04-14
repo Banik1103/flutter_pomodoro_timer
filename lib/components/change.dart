@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-class ChangeText with ChangeNotifier {
+class Change with ChangeNotifier {
   String value = "How long do you want to study for?";
 
   void changeText() {
