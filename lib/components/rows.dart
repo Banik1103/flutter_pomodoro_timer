@@ -1,14 +1,9 @@
 // ignore: import_of_legacy_library_into_null_safe
 import '../main.dart';
-import 'package:flutter/material.dart';
 import '../components/buttons.dart';
+import 'package:flutter/material.dart';
 
-class ActionButton1 extends StatefulWidget {
-  @override
-  _ActionButton1State createState() => _ActionButton1State();
-}
-
-class _ActionButton1State extends State<ActionButton1> {
+class ActionButton1 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -16,10 +11,8 @@ class _ActionButton1State extends State<ActionButton1> {
       ControlButton(
         title: 'Start',
         buttonTapped: () {
-          setState(() {
-            controller.start();
-            start = false;
-          });
+          controller.start();
+          start = false;
         },
       ),
     ]);

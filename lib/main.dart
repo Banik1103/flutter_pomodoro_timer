@@ -1,19 +1,29 @@
 // @dart=2.9
 import 'components/rows.dart';
+import 'components/buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:duration_picker/duration_picker.dart';
+import 'package:pomodoro_timer/components/buttons.dart';
+import 'package:pomodoro_timer/components/changeText.dart';
 import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
+// TODO: check for time bugs when multiplying duration * 60
+// TODO: convert seconds to minutes on animated timer
+// TODO: create animated timer for break time
+
 String titLe = "Pause";
+String textAbove = "How long do you want to study for?";
 
 Widget bodyWidget;
 
 CountDownController controller = CountDownController();
 
-int duration = 10;
-int _break = 5;
+int duration = 0;
+int breakDuration = 0;
+int counter = 0;
 
 bool start = true;
 
@@ -26,7 +36,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        debugShowCheckedModeBanner: false, home: HomePage(swap: false));
+        debugShowCheckedModeBanner: false,
+        home: ChangeNotifierProvider<ChangeText>(
+            create: (BuildContext context) {
+              return ChangeText();
+            },
+            child: HomePage(swap: false)));
   }
 }
 
@@ -59,6 +74,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future _showNotificationOnStart() async {
+    duration ~/= 60;
     var androidDetails = AndroidNotificationDetails(
         "channelId", "Clock Notification", "Description",
         importance: Importance.high);
@@ -67,45 +83,120 @@ class _HomePageState extends State<HomePage> {
         NotificationDetails(android: androidDetails, iOS: iOSDetails);
     await localNotification.show(0, "The Pomodoro Timer started!",
         "It will ring in $duration minutes.", notificationDetails);
+    duration *= 60;
   }
 
   Future _showNotificationOnEnd() async {
+    breakDuration ~/= 60;
     var androidDetails = AndroidNotificationDetails(
         "channelId", "Clock Notification", "Description",
         importance: Importance.high);
     var iOSDetails = IOSNotificationDetails();
     var notificationDetails =
         NotificationDetails(android: androidDetails, iOS: iOSDetails);
-    await localNotification.show(0, "The time is up!",
-        "Good job, now you can rest for $_break minutes.", notificationDetails);
+    await localNotification.show(
+        0,
+        "The time is up!",
+        "Good job, now you can rest for $breakDuration minutes.",
+        notificationDetails);
+    breakDuration *= 60;
+  }
+
+  throwError() {
+    return showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => AlertDialog(
+              title: Text('Error'),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    Text('The duration entered cannot be used. Try again.')
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                    child: Text('Okay', style: TextStyle(color: Colors.black)),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    })
+              ],
+            ));
   }
 
   @override
   Widget build(BuildContext context) {
-    if (swap) {
-      // this should be !swap, it's swap to test push-notifications
+    final textAbove = Provider.of<ChangeText>(context);
+    if (!swap) {
       bodyWidget = Center(
-          child: Padding(
-        padding:
-            EdgeInsets.only(bottom: MediaQuery.of(context).size.height / 7),
-        child: DurationPicker(
-          duration: _duration,
-          onChange: (val) {
-            this.setState(() => _duration = val);
-            String temp = _duration.toString().substring(2, 4);
-            // ignore: unrelated_type_equality_checks
-            if (temp[0] == 0) {
-              duration = int.parse(temp[1]);
-            } else {
-              duration = int.parse(temp);
-            }
-          },
-          snapToMins: 5.0,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 30, bottom: 70),
+              child: Text(textAbove.value),
+            ), // change font size!
+            Padding(
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).size.height / 7),
+              child: DurationPicker(
+                duration: _duration,
+                onChange: (val) {
+                  this.setState(() => _duration = val);
+                  String temp = _duration.toString().substring(2, 4);
+                  // ignore: unrelated_type_equality_checks
+                  if (counter == 0) {
+                    // ignore: unrelated_type_equality_checks
+                    if (temp[0] == 0) {
+                      duration = int.parse(temp[1]);
+                    } else {
+                      duration = int.parse(temp);
+                    }
+                    // ignore: unrelated_type_equality_checks
+                  } else if (temp[0] == 0) {
+                    // ignore: unrelated_type_equality_checks
+                    breakDuration = int.parse(temp[1]);
+                  } else {
+                    breakDuration = int.parse(temp);
+                  }
+                },
+                snapToMins: 5.0,
+              ),
+            ),
+          ],
         ),
-      ));
+      );
       return Scaffold(
-          appBar: AppBar(title: Text('Pomodoro Clock'), centerTitle: true),
-          body: bodyWidget);
+        appBar: AppBar(title: Text('Pomodoro Clock'), centerTitle: true),
+        body: bodyWidget,
+        floatingActionButton: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(width: 30),
+            ControlButton(
+              title: 'Next',
+              buttonTapped: () {
+                if (counter == 1) {
+                  if (breakDuration == 0) {
+                    throwError();
+                  } else {
+                    setState(() {
+                      duration *= 60;
+                      swap = !swap;
+                    });
+                  }
+                } else if (duration == 0) {
+                  throwError();
+                } else {
+                  textAbove.changeText();
+                  counter++;
+                  breakDuration *= 60;
+                }
+              },
+            )
+          ],
+        ),
+      );
     } else {
       bodyWidget = Center(
         child: Padding(
@@ -197,7 +288,6 @@ class _HomePageState extends State<HomePage> {
           body: bodyWidget,
           floatingActionButton: ActionButton1());
     } else {
-      start = false;
       return Scaffold(
           appBar: AppBar(title: Text('Pomodoro Clock'), centerTitle: true),
           body: bodyWidget,
