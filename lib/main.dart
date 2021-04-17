@@ -37,11 +37,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: ChangeNotifierProvider<Change>(
-            create: (BuildContext context) {
-              return Change();
-            },
-            child: HomePage(swap: false)));
+        home: MultiProvider(providers: [
+          Provider<ChangeText>(create: (BuildContext context) => ChangeText())
+        ], child: HomePage(swap: false)));
   }
 }
 
@@ -127,7 +125,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final textAbove = Provider.of<Change>(context);
+    final textAbove = Provider.of<ChangeText>(context);
     if (!swap) {
       bodyWidget = Center(
         child: Column(
