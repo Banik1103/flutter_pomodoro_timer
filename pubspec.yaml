@@ -14,6 +14,7 @@ dependencies:
   circular_countdown_timer: ^0.2.0
   flutter_local_notifications: ^3.0.1+6
   duration_picker: ^1.0.1
+  page_transition: "^1.1.7+6"
 
 dev_dependencies:
   flutter_test:
