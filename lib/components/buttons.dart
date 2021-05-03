@@ -5,7 +5,7 @@ class ControlButton extends StatelessWidget {
   final color;
   final buttonTapped;
 
-  ControlButton({required this.title, this.color, this.buttonTapped});
+  ControlButton({required this.title, this.color, required this.buttonTapped});
 
   @override
   Widget build(BuildContext context) {

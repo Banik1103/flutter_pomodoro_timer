@@ -11,8 +11,8 @@ class ActionButton1 extends StatelessWidget {
       ControlButton(
         title: 'Start',
         buttonTapped: () {
+          clicked = true;
           controller.start();
-          start = false;
         },
       ),
     ]);
@@ -47,8 +47,24 @@ class _ActionButton2State extends State<ActionButton2> {
       SizedBox(width: 10),
       ControlButton(
         title: 'Restart',
-        buttonTapped: () => controller.restart(duration: duration),
+        buttonTapped: () => controller.restart(duration: duration * 60),
       )
+    ]);
+  }
+}
+
+class ActionButton3 extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+      SizedBox(width: 30),
+      ControlButton(
+        title: 'Start',
+        buttonTapped: () {
+          clicked2 = true;
+          controller2.start();
+        },
+      ),
     ]);
   }
 }
