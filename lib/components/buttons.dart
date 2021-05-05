@@ -9,13 +9,11 @@ class ControlButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: ElevatedButton(
-        onPressed: buttonTapped,
-        child: Text(
-          title,
-          style: TextStyle(color: color),
-        ),
+    return ElevatedButton(
+      onPressed: buttonTapped,
+      child: Text(
+        title,
+        style: TextStyle(color: color),
       ),
     );
   }
