@@ -1,5 +1,8 @@
 // @dart=2.9
+import 'package:flutter/rendering.dart';
+
 import 'components/rows.dart';
+import 'components/drawer.dart';
 import 'components/buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -28,8 +31,47 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        debugShowCheckedModeBanner: false, home: DurationPickerOne());
+    return MaterialApp(debugShowCheckedModeBanner: false, home: HomePage());
+  }
+}
+
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Study Timer'),
+          centerTitle: true,
+        ),
+        drawer: DDrawer(),
+        body: Center(),
+      ),
+    );
+  }
+}
+
+class StudyTechniques extends StatefulWidget {
+  @override
+  _StudyTechniquesState createState() => _StudyTechniquesState();
+}
+
+class _StudyTechniquesState extends State<StudyTechniques> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Study Techniques'),
+        centerTitle: true,
+      ),
+      drawer: DDrawer(),
+    );
   }
 }
 
@@ -66,53 +108,59 @@ class _DurationPickerOneState extends State<DurationPickerOne> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text('Pomodoro Timer'),
-          centerTitle: true,
-          automaticallyImplyLeading: false,
-        ),
-        body: Center(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 30, bottom: 70),
-                child: Text('How long do you want to study for?'),
-              ), // change font size!
-              Padding(
-                padding: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).size.height / 7),
-                child: DurationPicker(
-                  duration: _duration,
-                  onChange: (val) {
-                    this.setState(() => _duration = val);
-                  },
-                  snapToMins: 5.0,
-                ),
-              ),
-            ],
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+          appBar: AppBar(
+            title: Text('Pomodoro Timer'),
+            centerTitle: true,
+            automaticallyImplyLeading: false,
           ),
-        ),
-        floatingActionButton: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(width: 30),
-            ControlButton(
-                title: 'Next',
-                buttonTapped: () {
-                  duration = _duration.inMinutes;
-                  if (duration < 1) {
-                    throwError();
-                  } else {
-                    Navigator.push(
-                        context,
-                        PageTransition(
-                            type: PageTransitionType.rightToLeft,
-                            child: DurationPickerTwo()));
-                  }
-                })
-          ],
-        ));
+          body: Center(
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 50, bottom: 90),
+                  child: Text(
+                    'How long do you want to study for?',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).size.height / 7),
+                  child: DurationPicker(
+                    duration: _duration,
+                    onChange: (val) {
+                      this.setState(() => _duration = val);
+                    },
+                    snapToMins: 5.0,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          floatingActionButton: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(width: 30),
+              ControlButton(
+                  title: 'Next',
+                  buttonTapped: () {
+                    duration = _duration.inMinutes;
+                    if (duration < 1) {
+                      throwError();
+                    } else {
+                      Navigator.push(
+                          context,
+                          PageTransition(
+                              type: PageTransitionType.rightToLeft,
+                              child: DurationPickerTwo()));
+                    }
+                  })
+            ],
+          )),
+    );
   }
 }
 
@@ -161,9 +209,11 @@ class _DurationPickerTwoState extends State<DurationPickerTwo> {
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(top: 30, bottom: 70),
-                  child: Text('How long do you want your break to be?'),
-                ), // change font size!
+                    padding: const EdgeInsets.only(top: 50, bottom: 90),
+                    child: Text(
+                      'How long do you want your break to be?',
+                      style: TextStyle(fontSize: 17),
+                    )),
                 Padding(
                   padding: EdgeInsets.only(
                       bottom: MediaQuery.of(context).size.height / 7),
